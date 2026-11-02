@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ICT Teacher AI — Trợ lý Tin học THPT</title>
+<style>
+:root {
+  --site-primary: #155eef;
+  --site-on-primary: #ffffff;
+  --site-secondary: #102a56;
+  --site-on-secondary: #ffffff;
+  --site-background: #f3f6fc;
+  --site-on-background: #17233b;
+  --site-font-body: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --site-font-heading: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --site-heading-scale: 1;
+  --site-spacing-scale: 1;
+  --site-radius-scale: 1;
+  --site-decoration-opacity: 1;
+  --ink: #17233b;
+  --muted: #71809a;
+  --line: #e5eaf3;
+  --surface: light-dark(#ffffff, #172238);
+  --surface-soft: light-dark(#f7f9fd, #1d2b44);
+  --blue-soft: light-dark(#edf3ff, #20365e);
+  --green: #168568;
+  --amber: #b86b0b;
+  color-scheme: light dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--site-font-body); background: var(--site-background); color: var(--site-on-background); }
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+#app { min-height: 100vh; background-color: var(--site-background); color: var(--site-on-background); border-radius: 0; }
+.shell { display: grid; grid-template-columns: 248px minmax(0,1fr); min-height: 100vh; }
+.sidebar { background: var(--site-secondary); color: var(--site-on-secondary); padding: 25px 16px; display:flex; flex-direction:column; gap:25px; }
+.brand { display:flex; align-items:center; gap:11px; padding: 0 8px; }
+.logo { width:42px;height:42px;border-radius:14px;background:#dce8ff;color:#155eef;display:grid;place-items:center;font-size:22px;font-weight:900; }
+.brand h1 { font-size:16px; margin:0; letter-spacing:-.4px; }
+.brand p { font-size:11px; margin:4px 0 0; color:#b9c9e7; }
+.nav-label { color:#8fa8d0;font-size:10px;font-weight:800;letter-spacing:1.4px;padding:0 12px;margin:0 0 8px; }
+.nav { display:flex;flex-direction:column;gap:5px; }
+.nav button { color:#d6e2f8;background:transparent;border:0;text-align:left;padding:11px 12px;border-radius:11px;display:flex;gap:12px;align-items:center;font-size:13px;transition:.18s; }
+.nav button:hover,.nav button.active { background:#244477;color:white; }
+.nav button.active { box-shadow: inset 3px 0 #79a5ff; }
+.nav-icon { width:20px;text-align:center;font-size:16px; }
+.sidebar-foot { margin-top:auto; background:#1b3b6d;border:1px solid #355587;border-radius:15px;padding:14px;font-size:12px;line-height:1.55;color:#d8e5ff; }
+.sidebar-foot strong { display:block;color:#fff;margin-bottom:4px; }
+.main { min-width:0; }
+.topbar { height:76px; display:flex;align-items:center;justify-content:space-between;padding:0 34px;background:var(--surface);border-bottom:1px solid var(--line);gap:15px; }
+.breadcrumb { color:var(--muted);font-size:12px; }
+.breadcrumb strong { color:var(--ink);font-weight:700; }
+.top-actions { display:flex;align-items:center;gap:10px; }
+.status { display:flex;align-items:center;gap:7px;color:var(--muted);font-size:11px; }
+.dot { width:7px;height:7px;border-radius:50%;background:#18a879; }
+.avatar { width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#e2ebff;color:#155eef;font-weight:800;font-size:12px; }
+.content { max-width:1450px;margin:auto;padding:30px 34px 44px; }
+.welcome { display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:23px; }
+.eyebrow { color:#155eef;font-size:11px;text-transform:uppercase;letter-spacing:1.4px;font-weight:800;margin-bottom:8px; }
+h2 { font-size:calc(29px * var(--site-heading-scale));letter-spacing:-1.1px;line-height:1.2;margin:0 0 9px;color:var(--ink); }
+.welcome p { margin:0;color:var(--muted);font-size:13px;line-height:1.7; }
+.btn { border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 14px;border-radius:10px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:.2s; }
+.btn:hover { transform:translateY(-1px);box-shadow:0 5px 14px #1d376015; }
+.btn.primary { background:var(--site-primary);color:white;border-color:var(--site-primary); }
+.btn.dark { background:var(--site-secondary);color:white;border-color:var(--site-secondary); }
+.btn.small { padding:7px 10px;font-size:11px; }
+.grid { display:grid;gap:16px; }
+.stats { grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:19px; }
+.card { background:var(--surface);border:1px solid var(--line);border-radius:calc(17px * var(--site-radius-scale));padding:19px;min-width:0; }
+.stat-top { display:flex;justify-content:space-between;align-items:center;gap:10px;color:var(--muted);font-size:12px; }
+.stat-icon { width:35px;height:35px;border-radius:11px;background:var(--blue-soft);display:grid;place-items:center;font-size:17px; }
+.stat-num { font-size:28px;font-weight:800;letter-spacing:-1px;margin:13px 0 5px;color:var(--ink); }
+.stat-note { font-size:11px;color:var(--muted); }
+.stat-note span { color:var(--green);font-weight:800; }
+.home-grid { grid-template-columns:minmax(0,1.45fr) minmax(280px,.85fr);align-items:start; }
+.section-head { display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:17px; }
+.section-head h3 { margin:0;color:var(--ink);font-size:15px;letter-spacing:-.3px; }
+.section-head p { color:var(--muted);font-size:11px;margin:5px 0 0; }
+.tool-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.tool-card { border:1px solid var(--line);border-radius:14px;padding:17px;background:var(--surface);transition:.2s;cursor:pointer;min-height:150px; }
+.tool-card:hover { border-color:#9ab8fa;transform:translateY(-2px);box-shadow:0 9px 22px #1d376010; }
+.tool-card .tool-icon { width:39px;height:39px;border-radius:12px;background:var(--blue-soft);display:grid;place-items:center;font-size:19px;margin-bottom:13px; }
+.tool-card h4 { font-size:13px;margin:0 0 6px;color:var(--ink); }
+.tool-card p { font-size:11px;line-height:1.55;margin:0;color:var(--muted); }
+.tool-tag { display:inline-block;margin-top:11px;font-size:9px;font-weight:800;letter-spacing:.3px;color:#155eef;background:var(--blue-soft);padding:5px 7px;border-radius:6px; }
+.activity { display:flex;flex-direction:column;gap:0; }
+.activity-item { display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--line); }
+.activity-item:last-child { border-bottom:0; }
+.activity-icon { flex-shrink:0;width:34px;height:34px;border-radius:10px;background:var(--surface-soft);display:grid;place-items:center; }
+.activity-item strong { display:block;color:var(--ink);font-size:12px;margin:1px 0 5px; }
+.activity-item p { color:var(--muted);font-size:11px;margin:0;line-height:1.5; }
+.activity-item time { display:block;color:#9aa5b8;font-size:10px;margin-top:6px; }
+.notice { display:flex;gap:11px;padding:14px;border-radius:12px;background:var(--blue-soft);margin-top:15px;font-size:11px;line-height:1.55;color:var(--ink); }
+.notice strong { display:block;margin-bottom:3px; }
+.page { display:none; }
+.page.active { display:block;animation:fade .25s ease; }
+@keyframes fade { from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)} }
+.panel { background:var(--surface);border:1px solid var(--line);border-radius:17px;padding:23px;margin-bottom:17px; }
+.panel h3 { color:var(--ink);font-size:16px;margin:0 0 7px; }
+.panel .sub { font-size:12px;color:var(--muted);margin:0 0 20px;line-height:1.6; }
+.form-grid { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px; }
+.field { display:flex;flex-direction:column;gap:7px;min-width:0; }
+.field.full { grid-column:1/-1; }
+.field label { font-size:11px;color:var(--ink);font-weight:800; }
+.field input,.field select,.field textarea { width:100%;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:11px 12px;color:var(--ink);font-size:12px;outline:none; }
+.field input:focus,.field select:focus,.field textarea:focus { border-color:#7199f7;box-shadow:0 0 0 3px #155eef16; }
+.field textarea { min-height:110px;resize:vertical;line-height:1.6; }
+.field textarea.large { min-height:230px; }
+.form-actions { display:flex;gap:9px;flex-wrap:wrap;margin-top:17px; }
+.result { margin-top:18px;padding:18px;border-radius:12px;background:var(--surface-soft);border:1px solid var(--line);display:none; }
+.result.show { display:block; }
+.result h4 { margin:0 0 10px;font-size:14px;color:var(--ink); }
+.result-body { white-space:pre-wrap;line-height:1.7;font-size:12px;color:var(--ink); }
+.result-body h1,.result-body h2,.result-body h3 { font-size:14px; }
+.upload { border:1.5px dashed #aabce0;border-radius:14px;padding:24px;text-align:center;background:var(--surface-soft); }
+.upload .big { font-size:27px;margin-bottom:8px; }
+.upload p { color:var(--muted);font-size:11px;line-height:1.6; }
+.upload input { max-width:100%;font-size:11px; }
+.table-wrap { overflow-x:auto; }
+table { width:100%;border-collapse:collapse;font-size:12px; }
+th { text-align:left;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.6px;background:var(--surface-soft); }
+th,td { padding:12px 10px;border-bottom:1px solid var(--line);white-space:nowrap; }
+td { color:var(--ink); }
+td input { width:70px;padding:7px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--ink); }
+.pill { display:inline-flex;padding:5px 8px;border-radius:7px;font-size:10px;font-weight:800;background:#e4f7ee;color:#167552; }
+.pill.amber { background:#fff0d9;color:#96550a; }
+.empty { text-align:center;color:var(--muted);padding:28px 12px;font-size:12px; }
+.small-muted { color:var(--muted);font-size:11px;line-height:1.6; }
+.ai-bar { display:flex;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);padding:10px;border-radius:13px;margin-bottom:16px; }
+.ai-bar select { border:0;background:transparent;color:var(--ink);font-size:12px;outline:none; }
+.toast { position:fixed;bottom:22px;right:22px;background:#12284d;color:white;padding:13px 17px;border-radius:11px;font-size:12px;box-shadow:0 12px 30px #0002;opacity:0;pointer-events:none;transform:translateY(8px);transition:.25s;z-index:99;max-width:340px; }
+.toast.show { opacity:1;transform:translateY(0); }
+.footer { color:var(--muted);font-size:10px;text-align:center;margin-top:23px;line-height:1.7; }
+.mobile-menu { display:none; }
+@media(max-width:1050px) { .shell{grid-template-columns:210px minmax(0,1fr)}.content{padding:25px 22px}.topbar{padding:0 22px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.home-grid{grid-template-columns:1fr} }
+@media(max-width:700px) { .shell{grid-template-columns:1fr}.sidebar{display:none}.sidebar.open{display:flex;position:fixed;z-index:50;inset:0 auto 0 0;width:265px;box-shadow:0 0 0 100vw #0d1b314d}.mobile-menu{display:inline-flex}.topbar{height:65px;padding:0 15px}.content{padding:23px 15px}.welcome{flex-direction:column}.welcome h2{font-size:25px}.stats{gap:10px}.card{padding:14px}.stat-num{font-size:24px}.tool-grid,.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.status{display:none}.panel{padding:17px}.tool-card{min-height:0} }
+
+/* ===== EDU BLUE 3D DESIGN SYSTEM ===== */
+:root{
+  --site-primary:#1769e8;--site-secondary:#f5f9ff;--site-background:#f3f8ff;
+  --site-on-secondary:#17345f;--site-on-background:#183153;
+  --ink:#183153;--muted:#7186a5;--line:#e2ebf8;
+  --surface:#fff;--surface-soft:#f4f8ff;--blue-soft:#e8f1ff;
+  color-scheme:light;
+}
+body{
+  background:radial-gradient(circle at 12% 0%,#e2efff 0,transparent 28%),
+             radial-gradient(circle at 95% 12%,#eaf5ff 0,transparent 25%),#f4f8ff;
+  color:#183153;
+}
+#app{background:transparent}
+.shell{gap:0}
+.sidebar{
+  background:linear-gradient(165deg,#fff 0%,#f4f8ff 58%,#eaf3ff 100%);
+  color:#24446f;border-right:1px solid #dce8f8;
+  box-shadow:8px 0 30px rgba(40,91,160,.06);padding:25px 15px;
+}
+.logo{
+  background:linear-gradient(145deg,#287cf4,#75b5ff);color:white;
+  box-shadow:0 8px 18px #1769e833, inset 0 1px 0 #ffffff80;
+}
+.brand h1{color:#17345f}.brand p{color:#7890b1}
+.nav-label{color:#8aa0bf}
+.nav button{color:#526d91;border:1px solid transparent}
+.nav button:hover,.nav button.active{
+  background:linear-gradient(110deg,#e8f2ff,#f5f9ff);color:#145fd4;
+  border-color:#d5e5ff;box-shadow:0 5px 14px #1769e812,inset 3px 0 #287cf4;
+}
+.nav button.active{font-weight:800}
+.sidebar-foot{
+  color:#42618b;background:linear-gradient(145deg,#edf5ff,#fff);
+  border:1px solid #d9e8fb;box-shadow:0 12px 24px #315c9510;
+}
+.sidebar-foot strong{color:#1769d8}
+.topbar{
+  background:#ffffffdc;backdrop-filter:blur(16px);
+  border-bottom:1px solid #e2ebf8;box-shadow:0 5px 20px #315c9508;
+}
+.avatar{background:linear-gradient(145deg,#dceaff,#f2f7ff);color:#1769d8;box-shadow:0 4px 10px #1769e81a}
+.content{padding-top:34px}
+.welcome{align-items:center}
+.eyebrow{color:#1769d8}
+h2{color:#15345e}
+.btn{
+  border:1px solid #dce8f8;background:linear-gradient(180deg,#fff,#f8fbff);
+  color:#31547e;box-shadow:0 3px 8px #234d7c08;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px #1769e81c}
+.btn.primary{
+  background:linear-gradient(135deg,#1769e8,#4b9cff);border-color:#2678ed;
+  box-shadow:0 8px 18px #1769e833,inset 0 1px 0 #ffffff55;
+}
+.btn.dark{background:linear-gradient(135deg,#214d85,#3479c9)}
+.card,.panel{
+  background:linear-gradient(145deg,#fff 0%,#fcfdff 100%);
+  border:1px solid #e0eafb;border-radius:19px;
+  box-shadow:0 8px 24px rgba(35,78,132,.055),0 2px 5px rgba(35,78,132,.035);
+  transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;
+}
+.card:hover,.panel:hover{
+  border-color:#d0e2fb;box-shadow:0 14px 30px rgba(35,94,166,.09),0 4px 10px #1769e80b;
+}
+.stat-icon,.tool-card .tool-icon{
+  background:linear-gradient(145deg,#e3efff,#f5f9ff);color:#1769d8;
+  box-shadow:inset 0 1px 0 #fff,0 5px 12px #1769e812;
+}
+.stat-num{color:#1769d8}
+.tool-card{
+  background:linear-gradient(145deg,#fff,#f8fbff);border-color:#e1ebf8;
+  box-shadow:0 4px 12px #315c9508,inset 0 1px 0 #fff;
+}
+.tool-card:hover{
+  border-color:#a9cbfa;transform:translateY(-5px) perspective(700px) rotateX(1deg);
+  box-shadow:0 16px 28px #1769e81c,0 4px 8px #315c9508;
+}
+.tool-card h4,.section-head h3,.panel h3{color:#183c6b}
+.tool-tag,.pill{background:#e9f2ff;color:#1769d8}
+.activity-icon{background:linear-gradient(145deg,#eaf3ff,#f7faff);color:#1769d8}
+.notice{background:linear-gradient(120deg,#eaf3ff,#f7fbff);border:1px solid #dceaff}
+.field input,.field select,.field textarea{
+  border-color:#dce7f5;background:#fbfdff;border-radius:11px;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:#75a9f5;box-shadow:0 0 0 4px #1769e812;
+}
+.upload{background:linear-gradient(145deg,#f4f8ff,#fff);border-color:#a9c9f3}
+.result{background:#f4f8ff;border-color:#dce8f8}
+th{background:#f1f6ff;color:#6882a5}
+td{border-color:#eaf0f8}
+.toast{background:linear-gradient(135deg,#17477e,#236ec0);box-shadow:0 14px 35px #173e702e}
+.page.active{animation:pageIn .34s cubic-bezier(.2,.8,.2,1)}
+@keyframes pageIn{from{opacity:0;transform:translateY(12px) scale(.995)}to{opacity:1;transform:translateY(0) scale(1)}}
+.stat-card-glow{position:relative;overflow:hidden}
+.stat-card-glow:after{content:"";position:absolute;width:110px;height:110px;border-radius:50%;right:-42px;top:-48px;background:linear-gradient(145deg,#e8f2ff,#fff);z-index:0}
+.ai-mode-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:15px 0}
+.ai-mode{
+  border:1px solid #dfebfa;border-radius:14px;padding:14px;background:linear-gradient(145deg,#fff,#f5f9ff);
+  cursor:pointer;transition:.2s;min-height:105px;text-align:left;color:#24466f;
+}
+.ai-mode:hover{transform:translateY(-3px);border-color:#9dc2f7;box-shadow:0 10px 22px #1769e81a}
+.ai-mode.selected{border-color:#4b91ef;background:linear-gradient(145deg,#eaf3ff,#fff);box-shadow:0 0 0 3px #1769e812}
+.ai-mode b{display:block;font-size:12px;margin:7px 0 4px;color:#194c8b}
+.ai-mode small{display:block;font-size:10px;line-height:1.45;color:#7890ad}
+.ai-mode .mode-icon{font-size:21px}
+.ai-output{min-height:260px;white-space:pre-wrap;line-height:1.75;font-size:13px}
+.ai-hero{
+  padding:23px;border-radius:20px;color:#fff;margin-bottom:17px;
+  background:radial-gradient(circle at 85% 15%,#8bc3ff66,transparent 25%),linear-gradient(120deg,#1456b8,#2788ef 62%,#67b4ff);
+  box-shadow:0 16px 32px #1769e82b,inset 0 1px 0 #ffffff55;position:relative;overflow:hidden;
+}
+.ai-hero:after{content:"✦";position:absolute;right:35px;top:-25px;font-size:150px;color:#ffffff16;transform:rotate(15deg)}
+.ai-hero h3{color:white!important;font-size:21px;margin:0 0 7px}
+.ai-hero p{color:#e5f2ff;font-size:12px;line-height:1.6;margin:0;max-width:680px}
+@media(max-width:850px){.ai-mode-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.ai-mode-grid{grid-template-columns:1fr 1fr}.ai-mode{padding:11px;min-height:100px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+</style>
+</head>
+<body>
+<div id="app">
+<div class="shell">
+<aside class="sidebar" id="sidebar">
+  <div class="brand"><div class="logo">✳</div><div><h1>ICT Teacher AI</h1><p>TRỢ LÝ GIÁO VIÊN THPT</p></div></div>
+  <div><p class="nav-label">KHÔNG GIAN LÀM VIỆC</p><nav class="nav" id="nav">
+    <button class="active" data-page="home"><span class="nav-icon">⌂</span> Tổng quan</button>
+    <button data-page="lesson"><span class="nav-icon">▤</span> Kế hoạch bài dạy</button>
+    <button data-page="ai-studio"><span class="nav-icon">✦</span> AI Studio — Trợ lý đa chế độ</button>
+    <button data-page="quiz"><span class="nav-icon">✎</span> Câu hỏi & đề kiểm tra</button>
+    <button data-page="slides"><span class="nav-icon">▣</span> Tạo bài giảng PowerPoint</button>
+    <button data-page="schedule"><span class="nav-icon">▦</span> Lịch giảng dạy</button>
+    <button data-page="grades"><span class="nav-icon">◫</span> Sổ điểm học sinh</button>
+    <button data-page="library"><span class="nav-icon">▧</span> Kho học liệu</button>
+    <button data-page="settings"><span class="nav-icon">⚙</span> Kết nối AI & cài đặt</button>
+  </nav></div>
+  <div class="sidebar-foot"><strong>✦ Dạy học thông minh</strong>Soạn nhanh hơn, cá nhân hóa hoạt động học tập và dành nhiều thời gian hơn cho học sinh.</div>
+</aside>
+<main class="main">
+<header class="topbar">
+  <div style="display:flex;align-items:center;gap:12px"><button class="btn mobile-menu" id="mobileMenu" aria-label="Mở menu">☰</button><div class="breadcrumb">Không gian giáo viên&nbsp; / &nbsp;<strong id="crumb">Tổng quan</strong></div></div>
+  <div class="top-actions"><div class="status"><span class="dot"></span><span id="aiStatus">Chế độ học liệu cục bộ</span></div><div class="avatar">GV</div></div>
+</header>
+<div class="content">
+<section class="page active" id="page-home">
+  <div class="welcome"><div><div class="eyebrow">✦ Không gian giảng dạy số</div><h2>Xin chào, thầy cô! 👋</h2><p>Trợ lý AI dành cho môn Tin học THPT — sách KNTT-ICT.<br>Chuẩn bị bài dạy, đánh giá học sinh và quản lý học liệu trong một nơi.</p></div><button class="btn primary" data-goto="lesson">＋ Soạn kế hoạch bài dạy</button></div>
+  <div class="grid stats">
+    <div class="card"><div class="stat-top">Kế hoạch bài dạy <span class="stat-icon">▤</span></div><div class="stat-num" id="statLessons">0</div><div class="stat-note">Đã lưu trên thiết bị này</div></div>
+    <div class="card"><div class="stat-top">Bộ câu hỏi <span class="stat-icon">✎</span></div><div class="stat-num" id="statQuizzes">0</div><div class="stat-note">Bộ đề đã tạo và lưu</div></div>
+    <div class="card"><div class="stat-top">Học liệu <span class="stat-icon">▧</span></div><div class="stat-num" id="statFiles">0</div><div class="stat-note">Tệp đã thêm vào kho cục bộ</div></div>
+    <div class="card"><div class="stat-top">Bản ghi điểm <span class="stat-icon">◫</span></div><div class="stat-num" id="statGrades">0</div><div class="stat-note">Học sinh trong sổ điểm</div></div>
+  </div>
+  <div class="grid home-grid">
+    <div class="card"><div class="section-head"><div><h3>Công cụ dành cho thầy cô</h3><p>Chọn một tác vụ để bắt đầu</p></div><span class="pill">8 công cụ</span></div>
+      <div class="grid tool-grid">
+        <div class="tool-card" data-goto="lesson"><div class="tool-icon">📘</div><h4>Soạn kế hoạch bài dạy</h4><p>Xây dựng mục tiêu, thiết bị, tiến trình hoạt động và đánh giá theo định hướng phát triển năng lực.</p><span class="tool-tag">KẾ HOẠCH BÀI DẠY</span></div>
+        <div class="tool-card" data-goto="ai-studio"><div class="tool-icon">✨</div><h4>AI Studio đa chế độ</h4><p>Trợ lý soạn giảng, tạo đề, rubric, phân hóa học tập, giải thích kiến thức và hỗ trợ lập trình.</p><span class="tool-tag">AI GIÁO DỤC</span></div>
+        <div class="tool-card" data-goto="quiz"><div class="tool-icon">🧩</div><h4>Tạo câu hỏi & đề kiểm tra</h4><p>Trắc nghiệm, tự luận, đáp án, ma trận và bảng đặc tả theo mức độ nhận thức.</p><span class="tool-tag">ĐÁNH GIÁ</span></div>
+        <div class="tool-card" data-goto="slides"><div class="tool-icon">🖥️</div><h4>Soạn bài giảng trình chiếu</h4><p>Đưa PDF hoặc tài liệu vào, tạo dàn ý slide và xuất PowerPoint có thể chỉnh sửa.</p><span class="tool-tag">POWERPOINT</span></div>
+        <div class="tool-card" data-goto="schedule"><div class="tool-icon">🗓️</div><h4>Lịch giảng dạy</h4><p>Lập lịch theo lớp, chủ đề, tiết học và hạn hoàn thành; xuất lịch CSV.</p><span class="tool-tag">KẾ HOẠCH</span></div>
+        <div class="tool-card" data-goto="grades"><div class="tool-icon">📊</div><h4>Sổ điểm điện tử</h4><p>Nhập điểm, tính trung bình, tìm kiếm học sinh và xuất bảng tính CSV.</p><span class="tool-tag">QUẢN LÝ LỚP</span></div>
+        <div class="tool-card" data-goto="library"><div class="tool-icon">📚</div><h4>Kho học liệu</h4><p>Quản lý tài liệu cá nhân, PDF, ghi chú và liên kết Google Drive.</p><span class="tool-tag">TÀI NGUYÊN</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="card"><div class="section-head"><div><h3>Việc cần chuẩn bị</h3><p>Gợi ý quy trình làm việc</p></div><span>✦</span></div>
+        <div class="activity">
+          <div class="activity-item"><div class="activity-icon">①</div><div><strong>Chọn bài/chủ đề NKTT-ICT</strong><p>Nhập tên bài, khối lớp và yêu cầu cần đạt để tạo bản nháp.</p></div></div>
+          <div class="activity-item"><div class="activity-icon">②</div><div><strong>Thêm tài liệu nguồn</strong><p>Tải PDF từ máy hoặc dán liên kết chia sẻ Google Drive.</p></div></div>
+          <div class="activity-item"><div class="activity-icon">③</div><div><strong>Rà soát trước khi sử dụng</strong><p>Kiểm tra độ chính xác, bản quyền và mức độ phù hợp với học sinh.</p></div></div>
+        </div>
+        <div class="notice"><span>🔐</span><div><strong>Dữ liệu riêng tư theo thiết kế</strong>Dữ liệu được lưu trong trình duyệt này. Muốn đồng bộ nhiều giáo viên, cần bổ sung máy chủ và đăng nhập.</div></div>
+      </div>
+      <div class="card" style="margin-top:16px"><div class="section-head"><div><h3>Trợ lý AI</h3><p>Kết nối mô hình khi đã có khóa API</p></div>✨</div><p class="small-muted">Hỗ trợ OpenAI và Gemini. Không nhập khóa API vào trang công khai; hãy dùng máy chủ trung gian để bảo vệ bí mật và kiểm soát chi phí.</p><button class="btn" data-goto="settings">Thiết lập kết nối →</button></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="page-lesson">
+  <div class="welcome"><div><div class="eyebrow">Công cụ biên soạn</div><h2>Kế hoạch bài dạy</h2><p>Tạo bản nháp có cấu trúc rõ ràng để giáo viên rà soát và hoàn thiện.</p></div></div>
+  <div class="panel"><h3>Thông tin bài học</h3><p class="sub">Điền thông tin cơ bản. Hệ thống sẽ tạo khung kế hoạch có thể chỉnh sửa và tải xuống.</p>
+    <div class="form-grid">
+      <div class="field"><label>Tên bài / chủ đề</label><input id="lessonTopic" placeholder="VD: Mạng máy tính và Internet"></div>
+      <div class="field"><label>Khối lớp</label><select id="lessonGrade"><option>Khối 10</option><option>Khối 11</option><option>Khối 12</option></select></div>
+      <div class="field"><label>Thời lượng</label><select id="lessonDuration"><option>1 tiết (45 phút)</option><option>2 tiết (90 phút)</option><option>3 tiết (135 phút)</option><option>4 tiết (180 phút)</option></select></div>
+      <div class="field"><label>Định hướng nội dung</label><select id="lessonType"><option>Phát triển năng lực và phẩm chất</option><option>Lý thuyết kết hợp thực hành</option><option>Thực hành phòng máy</option><option>Dạy học dự án / STEM</option></select></div>
+      <div class="field full"><label>Yêu cầu cần đạt / ghi chú từ sách KNTT-ICT</label><textarea id="lessonNeeds" placeholder="Dán yêu cầu cần đạt, nội dung sách giáo khoa hoặc ghi chú chuyên môn..."></textarea></div>
+    </div>
+    <div class="form-actions"><button class="btn primary" id="makeLesson">✦ Tạo kế hoạch bài dạy</button><button class="btn" id="saveLesson">Lưu bản nháp</button></div>
+    <div class="result" id="lessonResult"><div class="section-head"><h4>Bản nháp kế hoạch bài dạy</h4><button class="btn small" id="downloadLesson">Tải .doc</button></div><textarea class="field large" id="lessonOutput" style="width:100%;min-height:340px;border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--surface);color:var(--ink);font-size:12px;line-height:1.7"></textarea></div>
+  </div>
+  <div class="panel"><h3>Khung kế hoạch gợi ý</h3><p class="sub">Tham khảo và điều chỉnh theo mẫu kế hoạch bài dạy hiện hành của nhà trường.</p><div class="grid tool-grid"><div class="tool-card"><h4>I. Mục tiêu</h4><p>Kiến thức, năng lực tin học, năng lực chung và phẩm chất.</p></div><div class="tool-card"><h4>II. Thiết bị & học liệu</h4><p>Máy tính, phần mềm, SGK, phiếu học tập và tài nguyên số.</p></div><div class="tool-card"><h4>III. Tiến trình dạy học</h4><p>Mở đầu, hình thành kiến thức, luyện tập, vận dụng.</p></div><div class="tool-card"><h4>IV. Đánh giá & điều chỉnh</h4><p>Tiêu chí, sản phẩm học tập, phản hồi và phương án hỗ trợ.</p></div></div></div>
+</section>
+
+<section class="page" id="page-quiz">
+  <div class="welcome"><div><div class="eyebrow">Kiểm tra & đánh giá</div><h2>Câu hỏi và đề kiểm tra</h2><p>Tạo bộ câu hỏi mẫu theo chủ đề và mức độ nhận thức; chỉnh sửa trước khi sử dụng chính thức.</p></div></div>
+  <div class="panel"><h3>Thiết lập đề</h3><p class="sub">Tạo bản nháp câu hỏi. Nội dung sinh tự động cần được giáo viên thẩm định theo sách và chương trình.</p>
+    <div class="form-grid">
+      <div class="field"><label>Chủ đề kiểm tra</label><input id="quizTopic" placeholder="VD: Thuật toán và lập trình"></div>
+      <div class="field"><label>Khối lớp</label><select id="quizGrade"><option>Khối 10</option><option>Khối 11</option><option>Khối 12</option></select></div>
+      <div class="field"><label>Số câu trắc nghiệm</label><select id="quizCount"><option>5</option><option selected>10</option><option>15</option><option>20</option></select></div>
+      <div class="field"><label>Mức độ</label><select id="quizLevel"><option>Kết hợp nhận biết, thông hiểu, vận dụng</option><option>Nhận biết</option><option>Thông hiểu</option><option>Vận dụng</option><option>Vận dụng cao</option></select></div>
+      <div class="field full"><label>Nội dung / giới hạn kiến thức</label><textarea id="quizNeeds" placeholder="Dán phần kiến thức hoặc yêu cầu cần kiểm tra..."></textarea></div>
+    </div>
+    <div class="form-actions"><button class="btn primary" id="makeQuiz">✦ Tạo bộ câu hỏi</button><button class="btn" id="saveQuiz">Lưu bộ câu hỏi</button></div>
+    <div class="result" id="quizResult"><div class="section-head"><h4>Bộ câu hỏi — bản nháp</h4><button class="btn small" id="downloadQuiz">Tải .txt</button></div><textarea id="quizOutput" style="width:100%;min-height:350px;border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--surface);color:var(--ink);font-size:12px;line-height:1.7"></textarea></div>
+  </div>
+</section>
+
+<section class="page" id="page-slides">
+  <div class="welcome"><div><div class="eyebrow">Thiết kế bài giảng</div><h2>Tạo bài giảng PowerPoint</h2><p>Đưa tài liệu PDF hoặc nội dung từ kho học liệu vào để tạo dàn ý trình chiếu có cấu trúc.</p></div></div>
+  <div class="panel"><h3>1. Nạp tài liệu nguồn</h3><p class="sub">Tệp được xử lý cục bộ trong trình duyệt cho bản mẫu. Với PDF dài hoặc tài liệu quét ảnh, cần OCR/backend để trích xuất đầy đủ.</p>
+    <div class="upload"><div class="big">📄</div><strong>Chọn PDF, TXT hoặc tài liệu văn bản</strong><p>Chọn tệp trên thiết bị. Bản mẫu đọc văn bản TXT và PDF có lớp văn bản nếu trình duyệt hỗ trợ; không gửi tệp đi đâu.</p><input id="sourceFile" type="file" accept=".pdf,.txt,.md,.text"><div id="fileInfo" class="small-muted" style="margin-top:10px">Chưa chọn tệp</div></div>
+    <div class="field" style="margin-top:16px"><label>Hoặc dán nội dung / liên kết Google Drive</label><textarea id="slideSource" placeholder="Dán nội dung tài liệu hoặc liên kết chia sẻ Drive. Liên kết chỉ được lưu như tham chiếu; chưa tự tải nội dung Drive trong bản mẫu."></textarea></div>
+    <div class="form-grid" style="margin-top:15px"><div class="field"><label>Chủ đề bài giảng</label><input id="slideTopic" placeholder="VD: An toàn trên không gian mạng"></div><div class="field"><label>Số slide dự kiến</label><select id="slideCount"><option>6</option><option selected>10</option><option>12</option><option>15</option><option>20</option></select></div><div class="field"><label>Phong cách</label><select id="slideStyle"><option>Hiện đại, tối giản</option><option>Giáo dục, nhiều sơ đồ</option><option>Thực hành từng bước</option><option>Dự án STEM</option></select></div><div class="field"><label>Đối tượng</label><select id="slideGrade"><option>Học sinh lớp 10</option><option>Học sinh lớp 11</option><option>Học sinh lớp 12</option></select></div></div>
+    <div class="form-actions"><button class="btn primary" id="makeSlides">✦ Tạo dàn ý trình chiếu</button><button class="btn" id="exportPpt">Xuất PowerPoint (.pptx)</button></div>
+    <div class="result" id="slidesResult"><div class="section-head"><h4>Dàn ý slide</h4><span class="pill">Có thể chỉnh sửa</span></div><textarea id="slidesOutput" style="width:100%;min-height:350px;border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--surface);color:var(--ink);font-size:12px;line-height:1.7"></textarea><p class="small-muted">Xuất PPTX tạo tệp PowerPoint bằng cách tải một gói HTML tương thích để mở/chỉnh sửa trong PowerPoint. Muốn PPTX chuẩn có bố cục chuyên nghiệp, cần tích hợp máy chủ sinh tệp bằng thư viện PowerPoint.</p></div>
+  </div>
+  <div class="panel"><h3>Kết nối Google Drive</h3><p class="sub">Để lấy tài liệu từ Drive, hãy dùng liên kết chia sẻ công khai phù hợp hoặc triển khai Google Picker/OAuth trên backend. Không đưa thông tin đăng nhập vào trang tĩnh.</p><div class="field"><label>Liên kết thư mục hoặc tệp Drive</label><input id="driveLink" placeholder="https://drive.google.com/drive/folders/..."></div><div class="form-actions"><button class="btn" id="saveDrive">Lưu liên kết vào kho</button><button class="btn" data-goto="library">Mở kho học liệu →</button></div></div>
+</section>
+
+<section class="page" id="page-schedule">
+  <div class="welcome"><div><div class="eyebrow">Tổ chức công việc</div><h2>Lịch giảng dạy</h2><p>Lập lịch tiết dạy, kiểm tra và hạn chuẩn bị; dữ liệu được lưu trên trình duyệt.</p></div><button class="btn" id="exportSchedule">Xuất lịch CSV</button></div>
+  <div class="panel"><h3>Thêm lịch mới</h3><div class="form-grid"><div class="field"><label>Ngày</label><input type="date" id="eventDate"></div><div class="field"><label>Tiết / thời gian</label><input id="eventTime" placeholder="VD: Tiết 2, 08:00"></div><div class="field"><label>Lớp</label><input id="eventClass" placeholder="VD: 10A1"></div><div class="field"><label>Loại hoạt động</label><select id="eventType"><option>Giảng dạy</option><option>Thực hành</option><option>Kiểm tra</option><option>Ôn tập</option><option>Chuẩn bị học liệu</option></select></div><div class="field full"><label>Nội dung</label><input id="eventTopic" placeholder="Tên bài / chủ đề"></div></div><div class="form-actions"><button class="btn primary" id="addEvent">＋ Thêm vào lịch</button></div></div>
+  <div class="panel"><div class="section-head"><div><h3>Lịch đã lên</h3><p>Nhấn xóa để bỏ mục không còn cần thiết.</p></div><select id="scheduleFilter" style="border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--surface);color:var(--ink);font-size:11px"><option value="all">Tất cả</option><option>Giảng dạy</option><option>Thực hành</option><option>Kiểm tra</option><option>Ôn tập</option><option>Chuẩn bị học liệu</option></select></div><div class="table-wrap"><table><thead><tr><th>Ngày</th><th>Thời gian</th><th>Lớp</th><th>Hoạt động</th><th>Nội dung</th><th></th></tr></thead><tbody id="scheduleRows"></tbody></table></div><div id="scheduleEmpty" class="empty">Chưa có lịch. Thêm lịch đầu tiên ở phía trên.</div></div>
+</section>
+
+<section class="page" id="page-grades">
+  <div class="welcome"><div><div class="eyebrow">Theo dõi kết quả học tập</div><h2>Sổ điểm học sinh</h2><p>Nhập điểm theo cột, xem điểm trung bình và xuất CSV để tiếp tục xử lý trong bảng tính.</p></div><button class="btn" id="exportGrades">Xuất sổ điểm CSV</button></div>
+  <div class="panel"><h3>Thêm học sinh</h3><div class="form-grid"><div class="field"><label>Họ và tên</label><input id="studentName" placeholder="Nguyễn Văn A"></div><div class="field"><label>Lớp</label><input id="studentClass" placeholder="VD: 10A1"></div><div class="field"><label>Điểm thường xuyên</label><input id="studentTx" type="number" min="0" max="10" step=".1" placeholder="0–10"></div><div class="field"><label>Điểm giữa kỳ</label><input id="studentMid" type="number" min="0" max="10" step=".1" placeholder="0–10"></div><div class="field"><label>Điểm cuối kỳ</label><input id="studentFinal" type="number" min="0" max="10" step=".1" placeholder="0–10"></div></div><div class="form-actions"><button class="btn primary" id="addStudent">＋ Thêm học sinh</button><button class="btn" id="importGrades">Nhập CSV</button><input type="file" id="gradeFile" accept=".csv,text/csv" hidden></div><p class="small-muted" style="margin-top:12px">Điểm trung bình minh họa: thường xuyên hệ số 1, giữa kỳ hệ số 2, cuối kỳ hệ số 3. Giáo viên cần chỉnh theo quy định đánh giá đang áp dụng tại trường.</p></div>
+  <div class="panel"><div class="section-head"><div><h3>Bảng điểm</h3><p>Nhấn vào ô điểm để cập nhật trực tiếp.</p></div><input id="gradeSearch" placeholder="Tìm tên hoặc lớp..." style="width:190px;max-width:45%;border:1px solid var(--line);border-radius:8px;padding:9px;background:var(--surface);color:var(--ink);font-size:11px"></div><div class="table-wrap"><table><thead><tr><th>Học sinh</th><th>Lớp</th><th>Thường xuyên</th><th>Giữa kỳ</th><th>Cuối kỳ</th><th>Trung bình</th><th></th></tr></thead><tbody id="gradeRows"></tbody></table></div><div id="gradeEmpty" class="empty">Chưa có học sinh trong sổ điểm.</div></div>
+</section>
+
+<section class="page" id="page-library">
+  <div class="welcome"><div><div class="eyebrow">Tài nguyên giảng dạy</div><h2>Kho học liệu</h2><p>Lưu ghi chú, liên kết và danh mục tài liệu cho các bài học Tin học THPT.</p></div></div>
+  <div class="panel"><h3>Thêm học liệu</h3><div class="form-grid"><div class="field"><label>Tên tài liệu</label><input id="resourceName" placeholder="VD: SGK Tin học 10 — chủ đề A"></div><div class="field"><label>Loại</label><select id="resourceType"><option>Sách giáo khoa / PDF</option><option>Tài liệu giáo viên</option><option>Liên kết Google Drive</option><option>Video / website</option><option>Phiếu học tập</option><option>Khác</option></select></div><div class="field full"><label>Liên kết hoặc ghi chú</label><input id="resourceUrl" placeholder="Dán URL Drive hoặc mô tả vị trí tệp"></div></div><div class="form-actions"><button class="btn primary" id="addResource">＋ Thêm vào kho</button><button class="btn" data-goto="slides">Dùng để soạn bài giảng →</button></div></div>
+  <div class="panel"><div class="section-head"><div><h3>Tài liệu đã lưu</h3><p>Danh mục lưu cục bộ trong trình duyệt hiện tại.</p></div><span class="pill" id="resourceCount">0 tài liệu</span></div><div id="resourceList"></div><div id="resourceEmpty" class="empty">Kho đang trống. Thêm PDF, ghi chú hoặc liên kết Drive.</div></div>
+  <div class="notice"><span>ℹ️</span><div><strong>Chia sẻ học liệu toàn trường</strong>Để nhiều giáo viên cùng truy cập và cập nhật chung, cần kho dữ liệu tập trung (ví dụ Google Drive với phân quyền hoặc backend có xác thực). GitHub Pages chỉ phục vụ giao diện tĩnh.</div></div>
+</section>
+
+
+<section class="page" id="page-ai-studio">
+  <div class="ai-hero">
+    <h3>AI Studio · Không gian trợ lý giáo viên</h3>
+    <p>Một giao diện — nhiều chế độ hỗ trợ công việc sư phạm. Chọn tác vụ, cung cấp ngữ cảnh và gửi yêu cầu đến mô hình AI đã cấu hình qua backend bảo mật.</p>
+  </div>
+  <div class="panel">
+    <div class="section-head"><div><h3>Chọn chế độ AI</h3><p>Mỗi chế độ có bộ hướng dẫn riêng, có thể điều chỉnh theo môn học và cấp học.</p></div><span class="pill">10 chế độ</span></div>
+    <div class="ai-mode-grid" id="aiModeGrid">
+      <button class="ai-mode selected" data-mode="lesson"><span class="mode-icon">📘</span><b>Soạn kế hoạch bài dạy</b><small>Mục tiêu, hoạt động, đánh giá, phân hóa.</small></button>
+      <button class="ai-mode" data-mode="quiz"><span class="mode-icon">🧩</span><b>Tạo đề & ngân hàng câu hỏi</b><small>Trắc nghiệm, đúng-sai, tự luận, đáp án.</small></button>
+      <button class="ai-mode" data-mode="slides"><span class="mode-icon">🖥️</span><b>Thiết kế bài giảng</b><small>Dàn ý slide, hoạt động tương tác, ví dụ.</small></button>
+      <button class="ai-mode" data-mode="rubric"><span class="mode-icon">📊</span><b>Rubric & đánh giá</b><small>Tiêu chí, mức độ, thang điểm, phản hồi.</small></button>
+      <button class="ai-mode" data-mode="differentiate"><span class="mode-icon">🎯</span><b>Cá nhân hóa học tập</b><small>Phân hóa nhiệm vụ theo năng lực học sinh.</small></button>
+      <button class="ai-mode" data-mode="explain"><span class="mode-icon">💡</span><b>Giải thích kiến thức</b><small>Giải thích dễ hiểu, ví dụ và câu hỏi gợi mở.</small></button>
+      <button class="ai-mode" data-mode="code"><span class="mode-icon">💻</span><b>Trợ lý lập trình</b><small>Python, HTML/CSS/JS, sửa lỗi và thực hành.</small></button>
+      <button class="ai-mode" data-mode="digital"><span class="mode-icon">🌐</span><b>Năng lực số & AI</b><small>Hoạt động chuyển đổi số, AI có trách nhiệm.</small></button>
+      <button class="ai-mode" data-mode="feedback"><span class="mode-icon">📝</span><b>Nhận xét học sinh</b><small>Phản hồi tích cực, cụ thể, định hướng tiến bộ.</small></button>
+      <button class="ai-mode" data-mode="parent"><span class="mode-icon">🤝</span><b>Trao đổi phụ huynh</b><small>Soạn thông báo, thư mời, nội dung phối hợp.</small></button>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>Môn học / lĩnh vực</label><input id="aiSubject" value="Tin học" placeholder="VD: Tin học, Toán, Ngữ văn..."></div>
+      <div class="field"><label>Đối tượng</label><select id="aiAudience"><option>Học sinh lớp 10</option><option>Học sinh lớp 11</option><option>Học sinh lớp 12</option><option>Giáo viên THPT</option><option>Phụ huynh học sinh</option></select></div>
+      <div class="field"><label>Định hướng / phong cách</label><select id="aiStyle"><option>Chuẩn chương trình, rõ ràng, sư phạm</option><option>Thực hành, trực quan, dễ áp dụng</option><option>Sáng tạo, dự án STEM</option><option>Phát triển năng lực số và AI</option><option>Ngắn gọn, súc tích</option></select></div>
+      <div class="field"><label>Mức độ chi tiết</label><select id="aiDetail"><option>Đầy đủ, có cấu trúc</option><option>Ngắn gọn, trọng tâm</option><option>Chuyên sâu, có ví dụ minh họa</option></select></div>
+      <div class="field full"><label>Yêu cầu của giáo viên</label><textarea id="aiRequest" class="large" placeholder="Nhập chủ đề, mục tiêu, yêu cầu cần đạt, nội dung SGK hoặc tình huống cần AI hỗ trợ..."></textarea></div>
+      <div class="field full"><label>Tài liệu / ngữ cảnh bổ sung (không bắt buộc)</label><textarea id="aiContext" placeholder="Dán nội dung tài liệu, yêu cầu cần đạt, tiêu chí của tổ chuyên môn..."></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn primary" id="runTeacherAI">✦ Gửi yêu cầu đến AI</button>
+      <button class="btn" id="clearTeacherAI">Làm mới</button>
+      <button class="btn" id="copyTeacherAI">Sao chép kết quả</button>
+      <button class="btn" id="downloadTeacherAI">Tải kết quả .txt</button>
+    </div>
+    <div class="result" id="teacherAIResult">
+      <div class="section-head"><div><h4>Kết quả trợ lý AI</h4><p class="small-muted" id="teacherAIStatus">Bản nháp — giáo viên cần kiểm duyệt.</p></div><span class="pill">Có thể chỉnh sửa</span></div>
+      <textarea id="teacherAIOutput" class="ai-output" style="width:100%;border:1px solid var(--line);border-radius:12px;padding:15px;background:var(--surface);color:var(--ink)"></textarea>
+    </div>
+    <div class="notice"><span>🔐</span><div><strong>Nguyên tắc sử dụng an toàn</strong>AI Studio chỉ gọi mô hình thật khi đã cấu hình backend HTTPS. Không đặt API key trong HTML/GitHub. Không gửi dữ liệu định danh hoặc hồ sơ nhạy cảm của học sinh nếu chưa được phép; luôn kiểm tra nội dung trước khi dùng.</div></div>
+  </div>
+</section>
+
+<section class="page" id="page-settings">
+  <div class="welcome"><div><div class="eyebrow">Cấu hình hệ thống</div><h2>Kết nối AI & cài đặt</h2><p>Chuẩn bị tích hợp OpenAI, Gemini và kho dữ liệu dùng chung.</p></div></div>
+  <div class="panel"><h3>Nhà cung cấp mô hình AI</h3><p class="sub">Để an toàn, giao diện này không lưu khóa API. Hãy triển khai API proxy/serverless function, đặt khóa trong biến môi trường và gọi từ frontend qua endpoint được bảo vệ.</p><div class="form-grid"><div class="field"><label>Nhà cung cấp ưu tiên</label><select id="aiProvider"><option value="local">Chế độ bản mẫu (không gọi AI)</option><option value="openai">OpenAI qua backend</option><option value="gemini">Gemini qua backend</option><option value="hybrid">Kết hợp OpenAI + Gemini qua backend</option></select></div><div class="field"><label>Địa chỉ API backend</label><input id="apiEndpoint" placeholder="https://your-domain.example/api/ai"></div><div class="field full"><label>Hướng dẫn hệ thống (tùy chọn)</label><textarea id="systemPrompt">Bạn là trợ lý giáo viên Tin học THPT Việt Nam. Ưu tiên chương trình giáo dục phổ thông hiện hành, phát triển năng lực số, tư duy tin học và thực hành an toàn. Không bịa nội dung sách; nêu rõ điểm cần giáo viên xác minh. Tạo nội dung bằng tiếng Việt, có cấu trúc và dùng được trong lớp học.</textarea></div></div><div class="form-actions"><button class="btn primary" id="saveSettings">Lưu cài đặt</button><button class="btn" id="testAI">Kiểm tra kết nối</button></div><div id="aiTest" class="result"><div class="result-body" id="aiTestText"></div></div></div>
+  <div class="panel"><h3>Quản lý dữ liệu</h3><p class="sub">Sao lưu dữ liệu cục bộ thành JSON hoặc nhập bản sao lưu đã có. Dữ liệu học sinh là thông tin cá nhân, cần hạn chế quyền truy cập và không gửi lên AI nếu chưa có căn cứ phù hợp.</p><div class="form-actions"><button class="btn" id="backupData">Tải bản sao lưu JSON</button><button class="btn" id="restoreDataBtn">Khôi phục từ JSON</button><input type="file" id="restoreFile" accept=".json,application/json" hidden><button class="btn" id="clearData">Xóa dữ liệu cục bộ</button></div></div>
+  <div class="panel"><h3>Kiến trúc triển khai đề xuất</h3><div class="grid tool-grid"><div class="tool-card"><div class="tool-icon">🌐</div><h4>GitHub Pages</h4><p>Phục vụ giao diện HTML/CSS/JS miễn phí. Không lưu khóa bí mật hoặc dữ liệu dùng chung trong mã nguồn.</p></div><div class="tool-card"><div class="tool-icon">🔐</div><h4>Backend / Serverless</h4><p>Xác thực giáo viên, gọi OpenAI/Gemini, kiểm soát hạn mức và lưu khóa API ở biến môi trường.</p></div><div class="tool-card"><div class="tool-icon">☁️</div><h4>Google Drive / OAuth</h4><p>Dùng API chính thức, OAuth và quyền truy cập phù hợp để đọc tài liệu được phép chia sẻ.</p></div><div class="tool-card"><div class="tool-icon">🗄️</div><h4>Cơ sở dữ liệu</h4><p>Lưu kế hoạch, lịch, điểm số và vai trò người dùng; sao lưu và phân quyền khi mở rộng toàn trường.</p></div></div></div>
+</section>
+<div class="footer">ICT Teacher AI · Bản mẫu khởi đầu · Nội dung sinh tự động cần giáo viên kiểm duyệt trước khi sử dụng chính thức.<br>Không phải sản phẩm chính thức của nhà xuất bản hoặc nhà cung cấp mô hình AI.</div>
+</div>
+</main>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const $ = id => document.getElementById(id);
+const STORE_KEY = "ictTeacherAI_v1";
+const initial = {lessons:[],quizzes:[],events:[],grades:[],resources:[],settings:{provider:"local",endpoint:"",prompt:""}};
+let db = loadDB();
+function loadDB(){try{return {...structuredClone(initial),...JSON.parse(localStorage.getItem(STORE_KEY)||"{}")}}catch(e){return structuredClone(initial)}}
+function saveDB(){localStorage.setItem(STORE_KEY,JSON.stringify(db));updateStats();renderSchedule();renderGrades();renderResources()}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove("show"),3000)}
+const pageNames={home:"Tổng quan",lesson:"Kế hoạch bài dạy","ai-studio":"AI Studio — Trợ lý đa chế độ",quiz:"Câu hỏi & đề kiểm tra",slides:"Tạo bài giảng PowerPoint",schedule:"Lịch giảng dạy",grades:"Sổ điểm học sinh",library:"Kho học liệu",settings:"Kết nối AI & cài đặt"};
+function go(page){document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id==="page-"+page));document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===page));$("crumb").textContent=pageNames[page]||"Tổng quan";$("sidebar").classList.remove("open");window.scrollTo({top:0,behavior:"smooth"})}
+document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.page)));
+document.querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.goto)));
+$("mobileMenu").addEventListener("click",()=>$("sidebar").classList.toggle("open"));
+function updateStats(){$("statLessons").textContent=db.lessons.length;$("statQuizzes").textContent=db.quizzes.length;$("statFiles").textContent=db.resources.length;$("statGrades").textContent=db.grades.length;$("aiStatus").textContent=db.settings.provider&&db.settings.provider!=="local"?"AI qua backend (cấu hình)":"Chế độ học liệu cục bộ"}
+function download(name,content,type="text/plain;charset=utf-8"){const blob=new Blob(["\ufeff",content],{type});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500)}
+function lessonTemplate(){let topic=$("lessonTopic").value.trim()||"[Tên bài học]",grade=$("lessonGrade").value,duration=$("lessonDuration").value,type=$("lessonType").value,needs=$("lessonNeeds").value.trim()||"Bổ sung yêu cầu cần đạt chính xác theo tài liệu NKTT-ICT và kế hoạch giáo dục của nhà trường.";return `KẾ HOẠCH BÀI DẠY — TIN HỌC THPT\n\nBài/chủ đề: ${topic}\nĐối tượng: ${grade}\nThời lượng: ${duration}\nĐịnh hướng: ${type}\nTài liệu căn cứ: Sách NKTT-ICT / tài liệu do giáo viên cung cấp\n\nI. MỤC TIÊU\n1. Kiến thức\n- Học sinh trình bày/giải thích được các khái niệm trọng tâm của chủ đề: ${topic}.\n- Học sinh vận dụng kiến thức để phân tích hoặc giải quyết nhiệm vụ phù hợp với bài học.\n2. Năng lực\n- Năng lực tin học: sử dụng công cụ số phù hợp, giải quyết vấn đề với CNTT, đánh giá thông tin và tạo sản phẩm số.\n- Năng lực chung: tự chủ và tự học; giao tiếp và hợp tác; giải quyết vấn đề và sáng tạo.\n3. Phẩm chất\n- Chăm chỉ, trung thực, trách nhiệm; tuân thủ quy tắc an toàn và đạo đức số.\n\nII. THIẾT BỊ DẠY HỌC VÀ HỌC LIỆU\n- Giáo viên: máy tính, máy chiếu, phần mềm/công cụ liên quan, phiếu nhiệm vụ và tiêu chí đánh giá.\n- Học sinh: SGK, vở ghi, thiết bị/phần mềm theo điều kiện thực tế.\n- Học liệu và yêu cầu cần đạt do giáo viên cung cấp:\n${needs}\n\nIII. TIẾN TRÌNH DẠY HỌC\nHoạt động 1. MỞ ĐẦU (5 phút)\n- Mục tiêu: kích hoạt kiến thức nền và tạo tình huống có vấn đề.\n- Tổ chức: nêu tình huống thực tiễn liên quan đến ${topic}; học sinh dự đoán/trao đổi nhanh.\n- Sản phẩm: câu trả lời ban đầu hoặc sơ đồ ý tưởng.\n- Đánh giá: quan sát, hỏi đáp và phản hồi ngắn.\n\nHoạt động 2. HÌNH THÀNH KIẾN THỨC (15–20 phút)\n- Mục tiêu: hình thành khái niệm và quy trình cốt lõi.\n- Tổ chức: giáo viên hướng dẫn qua ví dụ/mô phỏng; học sinh làm việc cá nhân/nhóm, ghi nhận kết quả.\n- Sản phẩm: phiếu học tập, sơ đồ hoặc lời giải thích có căn cứ.\n- Đánh giá: câu hỏi kiểm tra hiểu biết, phản hồi theo tiêu chí.\n\nHoạt động 3. LUYỆN TẬP / THỰC HÀNH (10–15 phút)\n- Nhiệm vụ: hoàn thành bài tập từ cơ bản đến vận dụng; nếu có phòng máy, thực hiện thao tác trên phần mềm phù hợp.\n- Sản phẩm: kết quả bài tập hoặc tệp thực hành.\n- Đánh giá: bảng kiểm gồm tính chính xác, quy trình, khả năng giải thích và hợp tác.\n\nHoạt động 4. VẬN DỤNG / MỞ RỘNG (5 phút hoặc giao sau giờ học)\n- Nhiệm vụ: áp dụng kiến thức vào tình huống thực tiễn hoặc tạo sản phẩm nhỏ.\n- Sản phẩm: báo cáo ngắn/sản phẩm số.\n- Đánh giá: rubric công khai, tự đánh giá và đánh giá đồng đẳng.\n\nIV. KIỂM TRA, ĐÁNH GIÁ\n- Chẩn đoán: câu hỏi mở đầu để xác định kiến thức nền.\n- Trong giờ học: hỏi đáp, quan sát quá trình, kiểm tra sản phẩm và phản hồi kịp thời.\n- Cuối giờ: câu hỏi thoát lớp / nhiệm vụ ngắn gắn với yêu cầu cần đạt.\n- Tiêu chí: đúng kiến thức; vận dụng được; quy trình hợp lý; an toàn, đạo đức số; trình bày rõ ràng.\n\nV. PHÂN HÓA VÀ HỖ TRỢ\n- Học sinh cần hỗ trợ: cung cấp gợi ý từng bước, ví dụ mẫu và bạn học hỗ trợ.\n- Học sinh hoàn thành tốt: nhiệm vụ mở rộng, yêu cầu giải thích/so sánh hoặc tối ưu giải pháp.\n- Điều chỉnh theo điều kiện thiết bị, thời lượng và đặc điểm lớp học.\n\nVI. RÚT KINH NGHIỆM SAU BÀI DẠY\n- Mức độ đạt mục tiêu: ........................................................\n- Khó khăn / nội dung cần điều chỉnh: .........................................\n- Điều chỉnh cho lần dạy sau: ..................................................\n\nLƯU Ý: Đây là khung dự thảo. Giáo viên cần đối chiếu yêu cầu cần đạt chính xác trong SGK KNTT-ICT, phân phối chương trình và mẫu kế hoạch bài dạy của đơn vị trước khi sử dụng.`}
+$("makeLesson").onclick=()=>{$("lessonOutput").value=lessonTemplate();$("lessonResult").classList.add("show");toast("Đã tạo khung kế hoạch bài dạy. Thầy cô hãy rà soát nội dung.");};
+$("saveLesson").onclick=()=>{let content=$("lessonOutput").value||lessonTemplate();if(!$("lessonOutput").value){$("lessonOutput").value=content;$("lessonResult").classList.add("show")}db.lessons.unshift({id:Date.now(),topic:$("lessonTopic").value||"Bài học chưa đặt tên",grade:$("lessonGrade").value,content,date:new Date().toISOString()});saveDB();toast("Đã lưu kế hoạch trên thiết bị này.")};
+$("downloadLesson").onclick=()=>download("ke-hoach-bai-day.doc",$("lessonOutput").value||lessonTemplate(),"application/msword");
+function quizTemplate(){const topic=$("quizTopic").value.trim()||"[Chủ đề]",grade=$("quizGrade").value,n=+$("quizCount").value,level=$("quizLevel").value,needs=$("quizNeeds").value.trim()||"Giáo viên bổ sung nội dung chuẩn từ sách giáo khoa.";let out=`BỘ CÂU HỎI TIN HỌC THPT — BẢN NHÁP\nChủ đề: ${topic} | Đối tượng: ${grade}\nMức độ dự kiến: ${level}\nNội dung căn cứ: ${needs}\n\n`;for(let i=1;i<=n;i++){out+=`Câu ${i}. [Biên soạn theo nội dung thực tế của chủ đề ${topic}]\nCâu hỏi: ${i%3===0?"Yêu cầu học sinh vận dụng kiến thức để giải quyết tình huống sau: [mô tả tình huống cụ thể].":i%3===1?"Phát biểu nào mô tả đúng nhất khái niệm/nguyên tắc trọng tâm của chủ đề?":"Trong tình huống thực tế liên quan đến chủ đề, lựa chọn giải pháp nào phù hợp nhất? "}\nA. [Phương án nhiễu hợp lý 1]\nB. [Phương án đúng — cần hoàn thiện theo tài liệu]\nC. [Phương án nhiễu hợp lý 2]\nD. [Phương án nhiễu hợp lý 3]\nĐáp án dự kiến: B (cần kiểm chứng)\nGiải thích: [Giải thích dựa trên nội dung SGK/tài liệu nguồn]\nMức độ: ${i%3===0?"Vận dụng":i%3===1?"Nhận biết":"Thông hiểu"}\n\n`}out+=`GỢI Ý MA TRẬN SƠ BỘ\n- Nhận biết: khoảng 30%\n- Thông hiểu: khoảng 40%\n- Vận dụng: khoảng 30%\n\nHƯỚNG DẪN GIÁO VIÊN\n1. Thay các phần trong ngoặc vuông bằng kiến thức cụ thể từ tài liệu được phép sử dụng.\n2. Kiểm tra tính duy nhất của đáp án, tính hợp lý của phương án nhiễu và độ phù hợp với yêu cầu cần đạt.\n3. Cân đối ma trận, thời gian làm bài, thang điểm và hình thức kiểm tra theo quy định hiện hành của trường.\n4. Bản mẫu này chưa dùng mô hình AI để tạo câu hỏi kiến thức cụ thể.`;return out}
+$("makeQuiz").onclick=()=>{$("quizOutput").value=quizTemplate();$("quizResult").classList.add("show");toast("Đã tạo khung bộ câu hỏi. Cần bổ sung câu hỏi theo tài liệu thực tế.")};
+$("saveQuiz").onclick=()=>{let content=$("quizOutput").value||quizTemplate();$("quizOutput").value=content;$("quizResult").classList.add("show");db.quizzes.unshift({id:Date.now(),topic:$("quizTopic").value||"Bộ câu hỏi",content,date:new Date().toISOString()});saveDB();toast("Đã lưu bộ câu hỏi trên thiết bị này.")};
+$("downloadQuiz").onclick=()=>download("bo-cau-hoi-tin-hoc.txt",$("quizOutput").value||quizTemplate());
+let loadedSource="";
+$("sourceFile").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;$("fileInfo").textContent=`Đã chọn: ${f.name} (${Math.round(f.size/1024)} KB)`;if(f.size>12*1024*1024){toast("Tệp lớn hơn 12 MB. Hãy dùng trích xuất PDF ở máy hoặc backend.");return}if(f.type==="text/plain"||/\.(txt|md|text)$/i.test(f.name)){loadedSource=await f.text();$("slideSource").value=loadedSource;toast("Đã đọc văn bản từ tệp.")}else if(f.type==="application/pdf"||/\.pdf$/i.test(f.name)){loadedSource="";toast("Đã nhận PDF. Để trích xuất văn bản ổn định, hãy dùng backend PDF/OCR hoặc dán phần nội dung cần dùng.");}});
+function slideTemplate(){let topic=$("slideTopic").value.trim()||"Bài học Tin học",n=+$("slideCount").value,style=$("slideStyle").value,grade=$("slideGrade").value,source=$("slideSource").value.trim()||loadedSource;let chunks=source?source.split(/\n+/).map(x=>x.trim()).filter(Boolean):[];let slides=[];slides.push(["Mở đầu",`${topic}\n${grade}\nCâu hỏi khởi động: Kiến thức này được ứng dụng ở đâu trong đời sống số?`]);slides.push(["Mục tiêu bài học","Sau bài học, học sinh có thể:\n• Trình bày kiến thức trọng tâm\n• Vận dụng vào tình huống thực tiễn\n• Thực hành an toàn, có trách nhiệm"]);let usable=Math.max(1,n-4);for(let i=0;i<usable;i++){let text=chunks.length?chunks[Math.floor(i*chunks.length/usable)%chunks.length]:`Nội dung trọng tâm ${i+1}: bổ sung khái niệm, ví dụ minh họa và hình/sơ đồ từ tài liệu NKTT-ICT.`;slides.push([`Nội dung ${i+1}`,text.slice(0,650)+(text.length>650?"…":"")+"\n\nGợi ý: thêm ví dụ thực tế, sơ đồ hoặc câu hỏi tương tác."])}slides.push(["Luyện tập & thảo luận","Nhiệm vụ 1: giải thích khái niệm cốt lõi.\nNhiệm vụ 2: áp dụng kiến thức vào một tình huống.\nNhiệm vụ 3: chia sẻ kết quả và phản hồi theo tiêu chí."]);slides.push(["Tổng kết & đánh giá","3 ý chính cần ghi nhớ:\n• Khái niệm / nguyên tắc trọng tâm\n• Cách áp dụng vào thực tế\n• An toàn và đạo đức số\n\nCâu hỏi thoát lớp: Em có thể vận dụng điều gì sau bài học?"]);slides=slides.slice(0,n);return `BÀI GIẢNG: ${topic}\nPhong cách: ${style} | Đối tượng: ${grade}\nNguồn: ${source?"Nội dung giáo viên cung cấp (cần đối chiếu)":"Khung mẫu — chưa có nội dung nguồn"}\n\n`+slides.map((s,i)=>`SLIDE ${i+1}: ${s[0]}\n${s[1]}\n`).join("\n")+`\nGHI CHÚ: Dàn ý khung do bản mẫu tạo. Giáo viên cần bổ sung kiến thức chính xác, hình ảnh được phép sử dụng, trích dẫn nguồn và kiểm tra nội dung trước khi trình chiếu.`}
+$("makeSlides").onclick=()=>{$("slidesOutput").value=slideTemplate();$("slidesResult").classList.add("show");toast("Đã tạo dàn ý slide. Có thể chỉnh sửa trước khi xuất.")};
+$("exportPpt").onclick=()=>{let text=$("slidesOutput").value||slideTemplate();$("slidesOutput").value=text;$("slidesResult").classList.add("show");const html=`<!doctype html><html><head><meta charset="utf-8"><title>Bài giảng Tin học</title><style>body{font-family:Arial,sans-serif;color:#14264a;margin:0;background:#edf2fb}.slide{box-sizing:border-box;width:100%;min-height:90vh;padding:7vw 9vw;background:white;border-bottom:12px solid #155eef;page-break-after:always}.slide h1{font-size:34px;color:#155eef}.slide p{white-space:pre-wrap;font-size:22px;line-height:1.6}.tip{padding:20px;background:#fff3d9;color:#7a4a08;font-size:14px}</style></head><body><div class="tip">Bản trình chiếu HTML có thể mở trong trình duyệt. Để có tệp .pptx chuẩn, cần bật backend xuất PowerPoint.</div>${text.split(/(?=SLIDE \\d+:)/).filter(s=>s.trim()).map((s,i)=>`<section class="slide"><h1>${esc(s.split("\\n")[0])}</h1><p>${esc(s.split("\\n").slice(1).join("\\n"))}</p></section>`).join("")}<script>window.print()<\\/script></body></html>`;download("bai-giang-tin-hoc.html",html,"text/html;charset=utf-8");toast("Đã xuất bản trình chiếu HTML. PPTX chuẩn cần backend bổ sung.")};
+$("saveDrive").onclick=()=>{const url=$("driveLink").value.trim();if(!url){toast("Hãy nhập liên kết Drive.");return}db.resources.unshift({id:Date.now(),name:"Liên kết Google Drive",type:"Liên kết Google Drive",url,notes:"Đã thêm từ màn hình tạo bài giảng"});saveDB();$("resourceUrl").value=url;toast("Đã lưu liên kết vào kho học liệu.");};
+$("addEvent").onclick=()=>{const topic=$("eventTopic").value.trim();if(!topic||!$("eventDate").value){toast("Vui lòng nhập ngày và nội dung.");return}db.events.push({id:Date.now(),date:$("eventDate").value,time:$("eventTime").value,className:$("eventClass").value,type:$("eventType").value,topic});db.events.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));saveDB();$("eventTopic").value="";toast("Đã thêm lịch giảng dạy.")};
+$("scheduleFilter").onchange=renderSchedule;
+function renderSchedule(){const filter=$("scheduleFilter").value,rows=db.events.filter(e=>filter==="all"||e.type===filter);$("scheduleRows").innerHTML=rows.map(e=>`<tr><td>${esc(e.date)}</td><td>${esc(e.time)}</td><td>${esc(e.className)}</td><td>${esc(e.type)}</td><td>${esc(e.topic)}</td><td><button class="btn small" onclick="deleteEvent(${e.id})">Xóa</button></td></tr>`).join("");$("scheduleEmpty").style.display=rows.length?"none":"block"}
+window.deleteEvent=id=>{db.events=db.events.filter(e=>e.id!==id);saveDB();toast("Đã xóa lịch.")};
+$("exportSchedule").onclick=()=>download("lich-giang-day.csv",csv(["Ngày","Thời gian","Lớp","Hoạt động","Nội dung"],db.events.map(e=>[e.date,e.time,e.className,e.type,e.topic])),"text/csv;charset=utf-8");
+function validScore(v){if(v===""||v===null||v===undefined)return null;let n=Number(v);return Number.isFinite(n)&&n>=0&&n<=10?n:null}
+$("addStudent").onclick=()=>{const name=$("studentName").value.trim(),className=$("studentClass").value.trim();if(!name||!className){toast("Vui lòng nhập họ tên và lớp.");return}const tx=validScore($("studentTx").value),mid=validScore($("studentMid").value),fin=validScore($("studentFinal").value);db.grades.push({id:Date.now(),name,className,tx,mid,fin});saveDB();["studentName","studentClass","studentTx","studentMid","studentFinal"].forEach(id=>$(id).value="");toast("Đã thêm học sinh vào sổ điểm.")};
+function avg(g){const vals=[];if(g.tx!==null&&g.tx!==undefined)vals.push([g.tx,1]);if(g.mid!==null&&g.mid!==undefined)vals.push([g.mid,2]);if(g.fin!==null&&g.fin!==undefined)vals.push([g.fin,3]);if(!vals.length)return "—";return (vals.reduce((a,x)=>a+x[0]*x[1],0)/vals.reduce((a,x)=>a+x[1],0)).toFixed(2)}
+function scoreCell(g,key){let v=g[key]??"";return `<input aria-label="Điểm ${key}" type="number" min="0" max="10" step=".1" value="${esc(v)}" onchange="updateScore(${g.id},'${key}',this.value)" style="width:70px">`}
+window.updateScore=(id,key,val)=>{let n=validScore(val);if(val!==""&&n===null){toast("Điểm phải nằm trong khoảng 0–10.");renderGrades();return}const g=db.grades.find(x=>x.id===id);if(g){g[key]=n;saveDB();toast("Đã cập nhật điểm.")}};
+window.deleteStudent=id=>{db.grades=db.grades.filter(g=>g.id!==id);saveDB();toast("Đã xóa học sinh khỏi sổ điểm.")};
+$("gradeSearch").oninput=renderGrades;
+function renderGrades(){let q=($("gradeSearch")?.value||"").toLowerCase();let rows=db.grades.filter(g=>(g.name+" "+g.className).toLowerCase().includes(q));$("gradeRows").innerHTML=rows.map(g=>`<tr><td><strong>${esc(g.name)}</strong></td><td>${esc(g.className)}</td><td>${scoreCell(g,"tx")}</td><td>${scoreCell(g,"mid")}</td><td>${scoreCell(g,"fin")}</td><td><strong>${avg(g)}</strong></td><td><button class="btn small" onclick="deleteStudent(${g.id})">Xóa</button></td></tr>`).join("");$("gradeEmpty").style.display=rows.length?"none":"block"}
+function csv(headers,rows){return [headers,...rows].map(r=>r.map(x=>`"${String(x??"").replace(/"/g,'""')}"`).join(",")).join("\r\n")}
+$("exportGrades").onclick=()=>download("so-diem-tin-hoc.csv",csv(["Họ tên","Lớp","Thường xuyên","Giữa kỳ","Cuối kỳ","Trung bình"],db.grades.map(g=>[g.name,g.className,g.tx??"",g.mid??"",g.fin??"",avg(g)])),"text/csv;charset=utf-8");
+$("importGrades").onclick=()=>$("gradeFile").click();
+$("gradeFile").onchange=async e=>{const f=e.target.files[0];if(!f)return;const textData=await f.text();const lines=textData.replace(/^\uFEFF/,"").split(/\r?\n/).filter(Boolean);let count=0;for(let i=1;i<lines.length;i++){const cols=lines[i].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(s=>s.replace(/^"|"$/g,"").replace(/""/g,'"'));if(cols.length>=2&&cols[0]){db.grades.push({id:Date.now()+i,name:cols[0],className:cols[1],tx:validScore(cols[2]||""),mid:validScore(cols[3]||""),fin:validScore(cols[4]||"")});count++}}saveDB();toast(`Đã nhập ${count} bản ghi CSV.`);e.target.value=""};
+$("addResource").onclick=()=>{const name=$("resourceName").value.trim(),url=$("resourceUrl").value.trim(),type=$("resourceType").value;if(!name&&!url){toast("Nhập tên tài liệu hoặc liên kết.");return}db.resources.unshift({id:Date.now(),name:name||url,type,url,notes:""});saveDB();$("resourceName").value="";$("resourceUrl").value="";toast("Đã thêm học liệu.")};
+window.deleteResource=id=>{db.resources=db.resources.filter(r=>r.id!==id);saveDB();toast("Đã xóa học liệu.")};
+function renderResources(){$("resourceCount").textContent=db.resources.length+" tài liệu";$("resourceList").innerHTML=db.resources.map(r=>`<div class="activity-item"><div class="activity-icon">📄</div><div style="flex:1;min-width:0"><strong>${esc(r.name||"Tài liệu chưa đặt tên")}</strong><p>${esc(r.type)}${r.url?" · "+esc(r.url):""}</p></div><button class="btn small" onclick="deleteResource(${r.id})">Xóa</button></div>`).join("");$("resourceEmpty").style.display=db.resources.length?"none":"block"}
+$("saveSettings").onclick=()=>{db.settings={provider:$("aiProvider").value,endpoint:$("apiEndpoint").value.trim(),prompt:$("systemPrompt").value};saveDB();toast("Đã lưu tùy chọn AI.")};
+$("testAI").onclick=async()=>{const provider=$("aiProvider").value,endpoint=$("apiEndpoint").value.trim();$("aiTest").classList.add("show");if(provider==="local"){ $("aiTestText").textContent="Đang ở chế độ bản mẫu: không gọi mô hình AI thật. Chọn OpenAI/Gemini và cấu hình endpoint backend để kiểm tra kết nối.";return}if(!endpoint){$("aiTestText").textContent="Chưa có endpoint backend. Hãy triển khai API trung gian và nhập địa chỉ tại đây.";return} $("aiTestText").textContent="Đang kiểm tra...";try{const r=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"health",provider})});$("aiTestText").textContent=r.ok?"Backend phản hồi thành công. Hãy kiểm tra endpoint đã xác thực và không trả khóa API.":"Backend phản hồi HTTP "+r.status+". Kiểm tra endpoint, CORS và cấu hình máy chủ."}catch(e){$("aiTestText").textContent="Không thể kết nối: "+e.message+". Nếu đang chạy trực tiếp từ file hoặc GitHub Pages, cần endpoint HTTPS có cấu hình CORS."}};
+$("backupData").onclick=()=>download("ict-teacher-ai-backup.json",JSON.stringify(db,null,2),"application/json;charset=utf-8");
+$("restoreDataBtn").onclick=()=>$("restoreFile").click();
+$("restoreFile").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const x=JSON.parse(await f.text());db={...structuredClone(initial),...x};saveDB();$("aiProvider").value=db.settings.provider||"local";$("apiEndpoint").value=db.settings.endpoint||"";$("systemPrompt").value=db.settings.prompt||$("systemPrompt").value;toast("Đã khôi phục dữ liệu.")}catch(err){toast("Tệp sao lưu JSON không hợp lệ.")}e.target.value=""};
+$("clearData").onclick=()=>{if(confirm("Xóa toàn bộ dữ liệu cục bộ trên trình duyệt này? Hành động không thể hoàn tác nếu chưa sao lưu.")){db=structuredClone(initial);saveDB();toast("Đã xóa dữ liệu cục bộ.")}};
+
+const teacherAIModes = {
+  lesson:"Bạn là chuyên gia thiết kế kế hoạch bài dạy. Tạo kế hoạch có mục tiêu, thiết bị, tiến trình hoạt động, sản phẩm học tập, đánh giá, phân hóa và điều chỉnh.",
+  quiz:"Bạn là chuyên gia kiểm tra đánh giá. Tạo câu hỏi đúng kiến thức nguồn, có đáp án và giải thích; phân loại nhận biết, thông hiểu, vận dụng, vận dụng cao. Không tự bịa căn cứ.",
+  slides:"Bạn là chuyên gia thiết kế bài giảng. Tạo cấu trúc slide mạch lạc, ít chữ, có ví dụ, hình/sơ đồ gợi ý và hoạt động tương tác.",
+  rubric:"Bạn là chuyên gia đánh giá năng lực. Tạo rubric có tiêu chí quan sát được, các mức độ rõ ràng và thang điểm nhất quán.",
+  differentiate:"Bạn là chuyên gia dạy học phân hóa. Đề xuất nhiệm vụ theo nhóm cần hỗ trợ, đạt chuẩn và nâng cao; không gắn nhãn tiêu cực cho học sinh.",
+  explain:"Bạn là gia sư sư phạm. Giải thích từ dễ đến khó, dùng ví dụ gần gũi, chỉ ra lỗi thường gặp và câu hỏi kiểm tra hiểu biết.",
+  code:"Bạn là trợ lý lập trình cho giáo viên phổ thông. Viết mã rõ ràng, có chú thích, giải thích từng bước, chỉ ra cách chạy và kiểm thử an toàn.",
+  digital:"Bạn là chuyên gia giáo dục số. Đề xuất hoạt động phát triển năng lực số, hiểu biết AI, an toàn dữ liệu, bản quyền và sử dụng AI có trách nhiệm.",
+  feedback:"Bạn là cố vấn phản hồi học tập. Viết nhận xét cụ thể, tích cực, dựa trên bằng chứng được cung cấp và có gợi ý cải thiện.",
+  parent:"Bạn là trợ lý truyền thông nhà trường. Soạn nội dung trao đổi phụ huynh lịch sự, rõ mục đích, tôn trọng và không tiết lộ dữ liệu học sinh không cần thiết."
+};
+let selectedTeacherMode = "lesson";
+document.querySelectorAll(".ai-mode").forEach(btn=>btn.addEventListener("click",()=>{
+  selectedTeacherMode=btn.dataset.mode;
+  document.querySelectorAll(".ai-mode").forEach(x=>x.classList.toggle("selected",x===btn));
+}));
+$("runTeacherAI").onclick=async()=>{
+  const request=$("aiRequest").value.trim();
+  if(!request){toast("Thầy cô hãy nhập yêu cầu trước khi gửi.");$("aiRequest").focus();return}
+  const provider=$("aiProvider").value,endpoint=$("apiEndpoint").value.trim();
+  const modeInstruction=teacherAIModes[selectedTeacherMode]||teacherAIModes.lesson;
+  const prompt=[
+    modeInstruction,
+    "Môn học/lĩnh vực: "+$("aiSubject").value,
+    "Đối tượng: "+$("aiAudience").value,
+    "Phong cách: "+$("aiStyle").value,
+    "Mức độ chi tiết: "+$("aiDetail").value,
+    "Yêu cầu: "+request,
+    "Tài liệu/ngữ cảnh do giáo viên cung cấp:\n"+$("aiContext").value,
+    "Hãy trả lời bằng tiếng Việt, có cấu trúc, nêu rõ giả định và thông tin cần giáo viên kiểm chứng. Ưu tiên bám sát tài liệu nguồn."
+  ].join("\n\n");
+  $("teacherAIResult").classList.add("show");
+  $("teacherAIStatus").textContent="Đang xử lý yêu cầu…";
+  $("teacherAIOutput").value="";
+  if(provider==="local"||!endpoint){
+    $("teacherAIStatus").textContent="Chế độ xem trước — chưa kết nối mô hình AI thật.";
+    $("teacherAIOutput").value="YÊU CẦU ĐÃ ĐƯỢC CHUẨN BỊ\n\n"+prompt+"\n\n---\nĐể nhận câu trả lời do AI tạo, vào “Kết nối AI & cài đặt”, chọn nhà cung cấp và cấu hình endpoint backend HTTPS. Bản xem trước này không giả lập nội dung AI.";
+    toast("Chưa có backend AI — đã tạo nội dung yêu cầu để xem trước.");
+    return;
+  }
+  try{
+    const response=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+      action:"generate",provider,mode:selectedTeacherMode,prompt,
+      systemPrompt:$("systemPrompt").value||"Bạn là trợ lý giáo viên phổ thông."
+    })});
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(data.error||("HTTP "+response.status));
+    const answer=data.output||data.text||data.answer||data.content||data.result;
+    if(!answer)throw new Error("Backend phản hồi nhưng không tìm thấy trường output/text/answer/content/result.");
+    $("teacherAIOutput").value=typeof answer==="string"?answer:JSON.stringify(answer,null,2);
+    $("teacherAIStatus").textContent="Đã nhận phản hồi từ backend AI · cần giáo viên kiểm duyệt.";
+    toast("AI đã trả kết quả.");
+  }catch(err){
+    $("teacherAIStatus").textContent="Không thể hoàn tất yêu cầu.";
+    $("teacherAIOutput").value="LỖI KẾT NỐI AI\n"+err.message+"\n\nKiểm tra endpoint HTTPS, CORS, định dạng JSON và hợp đồng API backend.";
+    toast("Không kết nối được AI. Kiểm tra cấu hình backend.");
+  }
+};
+$("clearTeacherAI").onclick=()=>{
+  ["aiRequest","aiContext","teacherAIOutput"].forEach(id=>$(id).value="");
+  $("teacherAIResult").classList.remove("show");
+  toast("Đã làm mới biểu mẫu AI.");
+};
+$("copyTeacherAI").onclick=()=>{
+  const value=$("teacherAIOutput").value;
+  if(!value){toast("Chưa có nội dung để sao chép.");return}
+  if(navigator.clipboard?.writeText)navigator.clipboard.writeText(value).then(()=>toast("Đã sao chép kết quả.")).catch(()=>toast("Trình duyệt không cho phép sao chép tự động."));
+  else{$("teacherAIOutput").select();document.execCommand("copy");toast("Đã sao chép kết quả.")}
+};
+$("downloadTeacherAI").onclick=()=>{
+  const value=$("teacherAIOutput").value;
+  if(!value){toast("Chưa có nội dung để tải.");return}
+  download("ket-qua-tro-ly-ai-giao-vien.txt",value);
+};
+
+function init(){if(db.settings){$("aiProvider").value=db.settings.provider||"local";$("apiEndpoint").value=db.settings.endpoint||"";if(db.settings.prompt)$("systemPrompt").value=db.settings.prompt}updateStats();renderSchedule();renderGrades();renderResources();const today=new Date();$("eventDate").value=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`}
+init();
+</script>
+</body>
+</html>
